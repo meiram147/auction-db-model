@@ -1,0 +1,50 @@
+✅ 1. Сотрудники с максимальной выручкой по каждому магазину (2017)
+WITH staff_revenue AS (
+    SELECT 
+        s.staff_id,
+        s.store_id,
+        SUM(p.amount) AS total_revenue
+    FROM staff s
+    JOIN payment p ON s.staff_id = p.staff_id
+    WHERE EXTRACT(YEAR FROM p.payment_date) = 2017
+    GROUP BY s.staff_id, s.store_id
+)
+SELECT sr.*
+FROM staff_revenue sr
+WHERE sr.total_revenue = (
+    SELECT MAX(total_revenue)
+    FROM staff_revenue sr2
+    WHERE sr2.store_id = sr.store_id
+);
+🎬 2. ТОП-5 самых арендованных фильмов + возраст аудитории
+SELECT 
+    f.film_id,
+    f.title,
+    f.rating,
+    COUNT(r.rental_id) AS rental_count,
+    CASE f.rating
+        WHEN 'G' THEN '0+'
+        WHEN 'PG' THEN '10+'
+        WHEN 'PG-13' THEN '13+'
+        WHEN 'R' THEN '17+'
+        ELSE 'Unknown'
+    END AS audience_age
+FROM film f
+JOIN inventory i ON f.film_id = i.film_id
+JOIN rental r ON i.inventory_id = r.inventory_id
+GROUP BY f.film_id, f.title, f.rating
+ORDER BY rental_count DESC
+LIMIT 5;
+
+🎭 3. Актёры, которые долго не снимались (максимальный перерыв)
+SELECT 
+    a1.actor_id,
+    MAX(a2.release_year - a1.release_year) AS max_gap
+FROM film_actor fa1
+JOIN film f1 ON fa1.film_id = f1.film_id
+JOIN film_actor fa2 ON fa1.actor_id = fa2.actor_id
+JOIN film f2 ON fa2.film_id = f2.film_id
+JOIN actor a ON fa1.actor_id = a.actor_id
+JOIN film f1 ON fa1.film_id = f1.film_id
+JOIN film f2 ON fa2.film_id = f2.film_id
+GROUP BY a1.actor_id;
