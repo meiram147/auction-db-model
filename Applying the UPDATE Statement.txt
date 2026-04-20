@@ -1,0 +1,24 @@
+-- 1. Обновляем фильм (3 недели = 21 день)
+UPDATE film
+SET rental_duration = 21,
+    rental_rate = 9.99
+WHERE title = 'Inception';
+
+
+-- 2. Обновляем клиента (у которого >= 10 rentals и >= 10 payments)
+UPDATE customer
+SET 
+    first_name = 'Makar',
+    last_name = 'Ivanov',
+    email = 'makar@example.com',
+    address_id = (SELECT address_id FROM address LIMIT 1),
+    create_date = CURRENT_DATE
+WHERE customer_id = (
+    SELECT c.customer_id
+    FROM customer c
+    WHERE 
+        (SELECT COUNT(*) FROM rental r WHERE r.customer_id = c.customer_id) >= 10
+        AND
+        (SELECT COUNT(*) FROM payment p WHERE p.customer_id = c.customer_id) >= 10
+    LIMIT 1
+);
