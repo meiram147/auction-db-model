@@ -1,0 +1,28 @@
+-- 1. Добавляем фильм
+INSERT INTO film (title, description, release_year, rental_rate, rental_duration)
+VALUES ('Inception', 'A mind-bending thriller about dreams within dreams', 2010, 4.99, 14);
+
+-- 2. Добавляем актеров
+INSERT INTO actor (first_name, last_name) VALUES ('Leonardo', 'DiCaprio');
+INSERT INTO actor (first_name, last_name) VALUES ('Joseph', 'Gordon-Levitt');
+INSERT INTO actor (first_name, last_name) VALUES ('Elliot', 'Page');
+
+-- 3. Связываем актеров с фильмом
+-- (берем последний добавленный film_id и actor_id)
+INSERT INTO film_actor (actor_id, film_id)
+VALUES 
+((SELECT actor_id FROM actor WHERE first_name='Leonardo' AND last_name='DiCaprio'), 
+ (SELECT film_id FROM film WHERE title='Inception')),
+
+((SELECT actor_id FROM actor WHERE first_name='Joseph' AND last_name='Gordon-Levitt'), 
+ (SELECT film_id FROM film WHERE title='Inception')),
+
+((SELECT actor_id FROM actor WHERE first_name='Elliot' AND last_name='Page'), 
+ (SELECT film_id FROM film WHERE title='Inception'));
+
+-- 4. Добавляем фильм в inventory (в магазин)
+INSERT INTO inventory (film_id, store_id)
+VALUES (
+    (SELECT film_id FROM film WHERE title='Inception'),
+    1
+);
